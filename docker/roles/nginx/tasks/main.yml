@@ -1,0 +1,24 @@
+- name: ensure nginx is at the latest version
+  apt: name=nginx state=latest
+
+- name: start nginx
+  service:
+    name: nginx
+    state: restarted
+
+- name: copy the nginx config file
+  copy:
+    src: /etc/ansible/nginx.cfg
+    dest: /etc/nginx/sites-available/nginx.cfg
+
+- name: create symlink
+  file:
+    src: /etc/nginx/sites-available/nginx.cfg
+    dest: /etc/nginx/sites-enabled/default
+    state: link
+
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+

@@ -1,0 +1,11 @@
+---
+- name: Build dockerfile with tomcat app
+  hosts: all
+  become: yes
+  become_method: sudo
+  
+  roles:
+   - docker_run
+   - nginx
+
+

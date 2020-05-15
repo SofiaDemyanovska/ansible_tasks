@@ -1,0 +1,83 @@
+---
+- name: update system
+  shell: apt update
+
+- name: Install required system packages
+  apt: name={{ item }} state=latest update_cache=yes
+  loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'virtualenv']
+
+
+- name: Add Docker GPG apt Key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker Repository
+  apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu bionic stable
+    state: present
+
+- name: Update apt and install docker-ce
+  apt: update_cache=yes name=docker-ce state=latest
+
+- name: Install Docker Module for Python
+  pip:
+    name: docker
+
+- name: make workdir
+  shell: mkdir /etc/ansible/
+
+- name: Copy docker file to server
+  copy:
+    src: /etc/ansible/Dockerfile
+    dest: /etc/ansible/Dockerfile
+    mode: '0644'
+
+- name: Copy sample.war to server
+  copy:
+    src: /etc/ansible/sample.war
+    dest: /etc/ansible/sample.war
+    mode: '0644'
+
+- name: build image
+  shell:
+    cmd: docker build -t tomcat_app -f ./Dockerfile .
+    chdir: /etc/ansible/
+
+- name: Log into DockerHub
+  docker_login:
+    username: sofdem
+    password: popkaNasty42
+  
+- name: Tag and push to docker hub
+  docker_image:
+    name: tomcat_app
+    repository: sofdem/tomcat_app
+    push: yes
+    source: local
+
+#- name: Create default containers
+#  docker_container:
+#    name: "docker{{ item }}"
+#    image: tomcat_app
+#    state: present
+#    command: sleep 1d
+#    network_mode: bridge
+#    exposed_ports:
+#      - 8081:8080
+#    ports:
+#      - 8081:8080
+#    published_ports:
+#      - 8081:8080
+#    restart: true
+#  with_sequence: count=2
+
+
+- name: create first container
+  shell: docker run --name container1 -d -p 8080:8080 tomcat_app  
+
+- name: create second container
+  shell: docker run --name container2 -d -p 8081:8080 tomcat_app
+
+- name: container running
+  shell: docker ps -a
