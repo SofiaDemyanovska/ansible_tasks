@@ -44,17 +44,17 @@
     cmd: docker build -t tomcat_app -f ./Dockerfile .
     chdir: /etc/ansible/
 
-#- name: Log into DockerHub
-#  docker_login:
-#    username: ****
-#    password: ****
+- name: Log into DockerHub
+  docker_login:
+    username: ****
+    password: ****
   
-#- name: Tag and push to docker hub
-#  docker_image:
-#    name: tomcat_app
-#    repository: sofdem/tomcat_app
-#    push: yes
-#    source: local
+- name: Tag and push to docker hub
+  docker_image:
+    name: tomcat_app
+    repository: sofdem/tomcat_app
+    push: yes
+    source: local
 
 - name: create first container
   shell: docker run --name container1 -d -p 8080:8080 tomcat_app  
